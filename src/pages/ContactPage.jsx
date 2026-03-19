@@ -5,45 +5,45 @@ const ContactPage = () => {
     <>
       <Navbar />
       <div className="container my-3 py-3">
-        <h1 className="text-center">Contact Us</h1>
-        <hr />
+        <h1 className="text-center text-charcoal">Reach Out to Our Concierge</h1>
+        <hr className="border-gold-bottom w-25 mx-auto" />
         <div class="row my-4 h-100">
-          <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
+          <div className="col-md-6 col-lg-6 col-sm-10 mx-auto">
             <form>
               <div class="form my-3">
-                <label for="Name">Name</label>
+                <label for="Name" className="text-charcoal">Name</label>
                 <input
-                  type="email"
-                  class="form-control"
+                  type="text"
+                  className="form-control form-control-luxury"
                   id="Name"
                   placeholder="Enter your name"
                 />
               </div>
               <div class="form my-3">
-                <label for="Email">Email</label>
+                <label for="Email" className="text-charcoal">Email</label>
                 <input
                   type="email"
-                  class="form-control"
+                  className="form-control form-control-luxury"
                   id="Email"
                   placeholder="name@example.com"
                 />
               </div>
               <div class="form  my-3">
-                <label for="Password">Message</label>
+                <label for="Message" className="text-charcoal">Message</label>
                 <textarea
                   rows={5}
-                  class="form-control"
-                  id="Password"
-                  placeholder="Enter your message"
+                  className="form-control form-control-luxury"
+                  id="Message"
+                  placeholder="How can we assist you with your jewelry selection?"
                 />
               </div>
               <div className="text-center">
                 <button
-                  class="my-2 px-4 mx-auto btn btn-dark"
+                  className="my-2 px-4 mx-auto btn btn-gold"
                   type="submit"
                   disabled
                 >
-                  Send
+                  Send Inquiry
                 </button>
               </div>
             </form>

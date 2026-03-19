@@ -1,47 +1,112 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Footer, Navbar } from "../components";
+import React, { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Navbar, Footer } from "../components";
+import { CheckCircle } from "lucide-react";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const emailRef = useRef();
+  const passwordRef = useRef();
+
+  const loginUser = () => {
+    const email = emailRef.current.value.trim();
+    const password = passwordRef.current.value.trim();
+
+    if (!email || !password) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    setLoading(true);
+
+    const formData = new FormData();
+
+    formData.append("email", email);
+    formData.append("password", password);
+
+    axios
+      .post("http://localhost/Jewellerydb/signin.php", formData)
+      .then((res) => {
+        if (res.data.status === "true") {
+          setShowSuccess(true);
+
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("email", email);
+          localStorage.setItem("userId", res.data.userId);
+          const mailData = new FormData();
+          mailData.append("email", email);
+          mailData.append("type", "login");
+          axios
+            .post("http://localhost/Jewellerydb/sendmail.php", mailData)
+            .then(() => console.log("Mail Sent"))
+            .catch(() => console.log("Mail server error"));
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1500);
+        } else {
+          alert("Invalid Email or Password");
+        }
+      })
+
+      .catch(() => alert("Server error"))
+      .finally(() => setLoading(false));
+  };
+
   return (
     <>
       <Navbar />
-      <div className="container my-3 py-3">
-        <h1 className="text-center">Login</h1>
-        <hr />
-        <div class="row my-4 h-100">
-          <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
-            <form>
-              <div class="my-3">
-                <label for="display-4">Email address</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="floatingInput"
-                  placeholder="name@example.com"
-                />
-              </div>
-              <div class="my-3">
-                <label for="floatingPassword display-4">Password</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="floatingPassword"
-                  placeholder="Password"
-                />
-              </div>
-              <div className="my-3">
-                <p>New Here? <Link to="/register" className="text-decoration-underline text-info">Register</Link> </p>
-              </div>
-              <div className="text-center">
-                <button class="my-2 mx-auto btn btn-dark" type="submit" disabled>
-                  Login
-                </button>
-              </div>
-            </form>
+
+      <div className="container my-4 py-4">
+        {showSuccess && (
+          <div className="alert alert-success d-flex align-items-center gap-2">
+            <CheckCircle />
+            <span>Login Successful</span>
+          </div>
+        )}
+
+        <h1 className="text-center text-charcoal">Access Your Vault</h1>
+        <hr className="border-gold-bottom w-25 mx-auto" />
+
+        <div className="row my-4">
+          <div className="col-md-4 mx-auto">
+            <div className="card p-4">
+              <input
+                ref={emailRef}
+                type="email"
+                className="form-control form-control-luxury my-2"
+                placeholder="Email *"
+              />
+
+              <input
+                ref={passwordRef}
+                type="password"
+                className="form-control form-control-luxury my-2"
+                placeholder="Password *"
+              />
+
+              <button
+                onClick={loginUser}
+                disabled={loading}
+                className="btn btn-gold w-100 mt-3"
+              >
+                {loading ? "Accessing..." : "Access Vault"}
+              </button>
+
+              <p className="text-center mt-3">
+                New Here?{" "}
+                <Link to="/register" className="text-gold">
+                  Join Our Exclusive Circle
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );

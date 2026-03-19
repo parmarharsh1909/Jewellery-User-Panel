@@ -1,6 +1,6 @@
 // Retrieve initial state from localStorage if available
 const getInitialCart = () => {
-  const storedCart = localStorage.getItem("cart");
+  const storedCart = localStorage.getItem("luxury-jewelry-cart");
   return storedCart ? JSON.parse(storedCart) : [];
 };
 
@@ -21,7 +21,7 @@ const handleCart = (state = getInitialCart(), action) => {
         updatedCart = [...state, { ...product, qty: 1 }];
       }
       // Update localStorage
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      localStorage.setItem("luxury-jewelry-cart", JSON.stringify(updatedCart));
       return updatedCart;
 
     case "DELITEM":
@@ -34,7 +34,7 @@ const handleCart = (state = getInitialCart(), action) => {
         );
       }
       // Update localStorage
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      localStorage.setItem("luxury-jewelry-cart", JSON.stringify(updatedCart));
       return updatedCart;
 
     default:

@@ -1,295 +1,330 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Footer, Navbar } from "../components";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-const Checkout = () => {
-  const state = useSelector((state) => state.handleCart);
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-  const EmptyCart = () => {
-    return (
-      <div className="container">
-        <div className="row">
-          <div className="col-md-12 py-5 bg-light text-center">
-            <h4 className="p-3 display-5">No item in Cart</h4>
-            <Link to="/" className="btn btn-outline-dark mx-4">
-              <i className="fa fa-arrow-left"></i> Continue Shopping
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+const Checkout = () => {
+  const [cartItems, setCartItems] = useState([]);
+  const [sameAddress, setSameAddress] = useState("yes");
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    fullname: "",
+    phone: "",
+    address: "",
+  });
+
+  // 🎨 Theme
+  const styles = {
+    gold: { color: "#C9A227" },
+    charcoal: { color: "#2C2C2C" },
+    label: {
+      color: "#2C2C2C",
+      fontWeight: "600",
+    },
   };
 
-  const ShowCheckout = () => {
-    let subtotal = 0;
-    let shipping = 30.0;
-    let totalItems = 0;
-    state.map((item) => {
-      return (subtotal += item.price * item.qty);
-    });
+  // ================= FETCH CART =================
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
 
-    state.map((item) => {
-      return (totalItems += item.qty);
+    const form = new FormData();
+    form.append("user_id", userId);
+
+    axios
+      .post("http://localhost/Jewellerydb/viewCartUserWise.php", form)
+      .then((res) => {
+        const men = res.data.men || [];
+        const women = res.data.women || [];
+
+        const combined = [...men, ...women].map((item) => ({
+          ...item,
+          qty: Number(item.quantity || 0),
+        }));
+
+        setCartItems(combined.filter((i) => i.qty > 0));
+      })
+      .catch((err) => console.error("Cart Fetch Error:", err));
+  }, []);
+
+  // ================= FETCH USER =================
+  const fetchRegisteredAddress = async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
+    const form = new FormData();
+    form.append("user_id", userId);
+
+    try {
+      const res = await axios.post(
+        "http://localhost/Jewellerydb/Users.php",
+        form
+      );
+
+      if (res.data.status) {
+        setFormData({
+          fullname: res.data.data.name || "",
+          phone: res.data.data.phone || "",
+          address: res.data.data.address || "",
+        });
+      }
+    } catch (err) {
+      console.log("User Fetch Error:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (sameAddress === "yes") {
+      fetchRegisteredAddress();
+    } else {
+      setFormData({
+        fullname: "",
+        phone: "",
+        address: "",
+      });
+    }
+  }, [sameAddress]);
+
+  // ================= CALCULATIONS =================
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0),
+    0
+  );
+
+  const totalDiscount = cartItems.reduce((sum, item) => {
+    const price = Number(item.price || 0);
+    const qty = Number(item.qty || 0);
+    const discount = Number(item.discount_value || 0);
+
+    return sum + (price * qty * discount) / 100;
+  }, 0);
+
+  const total = subtotal - totalDiscount;
+
+  const totalItems = cartItems.reduce(
+    (sum, item) => sum + Number(item.qty || 0),
+    0
+  );
+
+  // ================= INPUT =================
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // ================= PLACE ORDER =================
+  const handlePlaceOrder = (e) => {
+    e.preventDefault();
+
+    if (!formData.fullname || !formData.phone || !formData.address) {
+      alert("Please fill all delivery details");
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      alert("Your cart is empty");
+      return;
+    }
+
+    navigate("/payment", {
+      state: {
+        formData,
+        cartItems,
+        subtotal,
+        totalDiscount,
+        total,
+      },
     });
-    return (
-      <>
-        <div className="container py-5">
-          <div className="row my-4">
+  };
+
+  // ================= EMPTY =================
+  const EmptyCart = () => (
+    <div className="container text-center py-5">
+      <h4>No Jewelry in Your Collection</h4>
+      <Link to="/" className="btn btn-outline-dark mt-3">
+        Continue Shopping
+      </Link>
+    </div>
+  );
+
+  return (
+    <>
+      <Navbar />
+
+      <div className="container my-4 py-4">
+        <h1 className="text-center fw-bold" style={styles.gold}>
+          Checkout
+        </h1>
+        <hr />
+
+        {cartItems.length === 0 ? (
+          <EmptyCart />
+        ) : (
+          <div className="row my-4 g-4">
+            {/* ORDER SUMMARY */}
             <div className="col-md-5 col-lg-4 order-md-last">
-              <div className="card mb-4">
-                <div className="card-header py-3 bg-light">
-                  <h5 className="mb-0">Order Summary</h5>
+              <div className="card shadow border-0">
+                <div className="card-header bg-dark text-white">
+                  <h5 className="mb-0" style={styles.gold}>
+                    Order Summary
+                  </h5>
                 </div>
+
                 <div className="card-body">
-                  <ul className="list-group list-group-flush">
-                    <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                      Products ({totalItems})<span>${Math.round(subtotal)}</span>
-                    </li>
-                    <li className="list-group-item d-flex justify-content-between align-items-center px-0">
-                      Shipping
-                      <span>${shipping}</span>
-                    </li>
-                    <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
-                      <div>
-                        <strong>Total amount</strong>
-                      </div>
-                      <span>
-                        <strong>${Math.round(subtotal + shipping)}</strong>
-                      </span>
-                    </li>
-                  </ul>
+                  {(() => {
+                    let subtotal = 0;
+                    let totalDiscount = 0;
+
+                    return (
+                      <>
+                        {cartItems.map((item) => {
+                          const price = Number(item.price || 0);
+                          const qty = Number(item.qty || 0);
+                          const discount = Number(item.discount_value || 0);
+
+                          const itemTotal = price * qty;
+                          const discountAmount =
+                            (itemTotal * discount) / 100;
+                          const finalPrice = itemTotal - discountAmount;
+
+                          subtotal += itemTotal;
+                          totalDiscount += discountAmount;
+
+                          return (
+                            <div key={item.product_id} className="mb-3">
+                              <div className="d-flex justify-content-between small">
+                                <span>
+                                  {item.product_name} × {qty}
+                                </span>
+                                <span>
+                                  ₹ {itemTotal.toLocaleString("en-IN")}
+                                </span>
+                              </div>
+
+                              <div className="d-flex justify-content-between text-success small">
+                                <span>Discount ({discount}%)</span>
+                                <span>
+                                  - ₹{" "}
+                                  {discountAmount.toLocaleString("en-IN")}
+                                </span>
+                              </div>
+
+                              <div className="d-flex justify-content-between fw-bold small">
+                                <span>Final</span>
+                                <span>
+                                  ₹ {finalPrice.toLocaleString("en-IN")}
+                                </span>
+                              </div>
+
+                              <hr />
+                            </div>
+                          );
+                        })}
+
+                        <div className="d-flex justify-content-between">
+                          <span>Subtotal</span>
+                          <span>₹ {subtotal.toLocaleString("en-IN")}</span>
+                        </div>
+
+                        <div className="d-flex justify-content-between text-success">
+                          <span>Total Discount</span>
+                          <span>
+                            - ₹ {totalDiscount.toLocaleString("en-IN")}
+                          </span>
+                        </div>
+
+                        <hr />
+
+                        <div className="d-flex justify-content-between fw-bold">
+                          <span>Total</span>
+                          <span>
+                            ₹ {(subtotal - totalDiscount).toLocaleString("en-IN")}
+                          </span>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
+
+            {/* DELIVERY FORM */}
             <div className="col-md-7 col-lg-8">
-              <div className="card mb-4">
-                <div className="card-header py-3">
-                  <h4 className="mb-0">Billing address</h4>
+              <div className="card shadow border-0">
+                <div className="card-header bg-dark text-white">
+                  <h5 className="mb-0" style={styles.gold}>
+                    Delivery Details
+                  </h5>
                 </div>
+
                 <div className="card-body">
-                  <form className="needs-validation" novalidate>
-                    <div className="row g-3">
-                      <div className="col-sm-6 my-1">
-                        <label for="firstName" className="form-label">
-                          First name
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="firstName"
-                          placeholder=""
-                          required
-                        />
-                        <div className="invalid-feedback">
-                          Valid first name is required.
-                        </div>
-                      </div>
+                  <h6 className="mb-3">Same as registered address?</h6>
 
-                      <div className="col-sm-6 my-1">
-                        <label for="lastName" className="form-label">
-                          Last name
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="lastName"
-                          placeholder=""
-                          required
-                        />
-                        <div className="invalid-feedback">
-                          Valid last name is required.
-                        </div>
-                      </div>
+                  <div className="form-check mb-2">
+                    <input
+                      type="radio"
+                      checked={sameAddress === "yes"}
+                      onChange={() => setSameAddress("yes")}
+                      className="form-check-input"
+                    />
+                    <label className="form-check-label">Yes</label>
+                  </div>
 
-                      <div className="col-12 my-1">
-                        <label for="email" className="form-label">
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          className="form-control"
-                          id="email"
-                          placeholder="you@example.com"
-                          required
-                        />
-                        <div className="invalid-feedback">
-                          Please enter a valid email address for shipping
-                          updates.
-                        </div>
-                      </div>
+                  <div className="form-check mb-4">
+                    <input
+                      type="radio"
+                      checked={sameAddress === "no"}
+                      onChange={() => setSameAddress("no")}
+                      className="form-check-input"
+                    />
+                    <label className="form-check-label">No</label>
+                  </div>
 
-                      <div className="col-12 my-1">
-                        <label for="address" className="form-label">
-                          Address
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="address"
-                          placeholder="1234 Main St"
-                          required
-                        />
-                        <div className="invalid-feedback">
-                          Please enter your shipping address.
-                        </div>
-                      </div>
-
-                      <div className="col-12">
-                        <label for="address2" className="form-label">
-                          Address 2{" "}
-                          <span className="text-muted">(Optional)</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="address2"
-                          placeholder="Apartment or suite"
-                        />
-                      </div>
-
-                      <div className="col-md-5 my-1">
-                        <label for="country" className="form-label">
-                          Country
-                        </label>
-                        <br />
-                        <select className="form-select" id="country" required>
-                          <option value="">Choose...</option>
-                          <option>India</option>
-                        </select>
-                        <div className="invalid-feedback">
-                          Please select a valid country.
-                        </div>
-                      </div>
-
-                      <div className="col-md-4 my-1">
-                        <label for="state" className="form-label">
-                          State
-                        </label>
-                        <br />
-                        <select className="form-select" id="state" required>
-                          <option value="">Choose...</option>
-                          <option>Punjab</option>
-                        </select>
-                        <div className="invalid-feedback">
-                          Please provide a valid state.
-                        </div>
-                      </div>
-
-                      <div className="col-md-3 my-1">
-                        <label for="zip" className="form-label">
-                          Zip
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="zip"
-                          placeholder=""
-                          required
-                        />
-                        <div className="invalid-feedback">
-                          Zip code required.
-                        </div>
-                      </div>
+                  <form onSubmit={handlePlaceOrder}>
+                    <div className="mb-3">
+                      <label style={styles.label}>Full Name</label>
+                      <input
+                        type="text"
+                        name="fullname"
+                        className="form-control"
+                        value={formData.fullname}
+                        onChange={handleChange}
+                      />
                     </div>
 
-                    <hr className="my-4" />
-
-                    <h4 className="mb-3">Payment</h4>
-
-                    <div className="row gy-3">
-                      <div className="col-md-6">
-                        <label for="cc-name" className="form-label">
-                          Name on card
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="cc-name"
-                          placeholder=""
-                          required
-                        />
-                        <small className="text-muted">
-                          Full name as displayed on card
-                        </small>
-                        <div className="invalid-feedback">
-                          Name on card is required
-                        </div>
-                      </div>
-
-                      <div className="col-md-6">
-                        <label for="cc-number" className="form-label">
-                          Credit card number
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="cc-number"
-                          placeholder=""
-                          required
-                        />
-                        <div className="invalid-feedback">
-                          Credit card number is required
-                        </div>
-                      </div>
-
-                      <div className="col-md-3">
-                        <label for="cc-expiration" className="form-label">
-                          Expiration
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="cc-expiration"
-                          placeholder=""
-                          required
-                        />
-                        <div className="invalid-feedback">
-                          Expiration date required
-                        </div>
-                      </div>
-
-                      <div className="col-md-3">
-                        <label for="cc-cvv" className="form-label">
-                          CVV
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="cc-cvv"
-                          placeholder=""
-                          required
-                        />
-                        <div className="invalid-feedback">
-                          Security code required
-                        </div>
-                      </div>
+                    <div className="mb-3">
+                      <label style={styles.label}>Phone</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        className="form-control"
+                        value={formData.phone}
+                        onChange={handleChange}
+                      />
                     </div>
 
-                    <hr className="my-4" />
+                    <div className="mb-4">
+                      <label style={styles.label}>Address</label>
+                      <textarea
+                        name="address"
+                        className="form-control"
+                        rows="3"
+                        value={formData.address}
+                        onChange={handleChange}
+                      />
+                    </div>
 
-                    <button
-                      className="w-100 btn btn-primary "
-                      type="submit" disabled
-                    >
-                      Continue to checkout
+                    <button className="btn btn-dark w-100">
+                      Place Order
                     </button>
                   </form>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </>
-    );
-  };
-  return (
-    <>
-      <Navbar />
-      <div className="container my-3 py-3">
-        <h1 className="text-center">Checkout</h1>
-        <hr />
-        {state.length ? <ShowCheckout /> : <EmptyCart />}
+        )}
       </div>
+
       <Footer />
     </>
   );

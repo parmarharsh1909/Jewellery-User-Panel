@@ -9,6 +9,8 @@ import { Footer, Navbar } from "../components";
 
 const Product = () => {
   const { id } = useParams();
+
+  
   const [product, setProduct] = useState([]);
   const [similarProducts, setSimilarProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -21,6 +23,8 @@ const Product = () => {
   };
 
   useEffect(() => {
+
+    alert("Discover the elegance of our exclusive jewelry collection. Each piece is crafted to perfection, waiting to adorn you with timeless beauty.");
     const getProduct = async () => {
       setLoading(true);
       setLoading2(true);
@@ -76,21 +80,52 @@ const Product = () => {
               />
             </div>
             <div className="col-md-6 col-md-6 py-5">
-              <h4 className="text-uppercase text-muted">{product.category}</h4>
+              <h4 className="text-uppercase text-gold">{product.category}</h4>
               <h1 className="display-5">{product.title}</h1>
-              <p className="lead">
+              <p className="lead rating-stars">
                 {product.rating && product.rating.rate}{" "}
                 <i className="fa fa-star"></i>
               </p>
-              <h3 className="display-6  my-4">${product.price}</h3>
-              <p className="lead">{product.description}</p>
+              <h3 className="display-6  my-4 price-display">
+                ₹ {product.price.toLocaleString("en-IN")}
+              </h3>
+              <p className="lead product-description">{product.description}</p>
+
+              {/* Jewelry Specifications */}
+              <div className="row my-4">
+                <div className="col-md-6">
+                  <div className="border-start border-gold ps-3">
+                    <h6 className="text-gold">Material</h6>
+                    <p className="mb-1">18K Gold</p>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="border-start border-gold ps-3">
+                    <h6 className="text-gold">Purity</h6>
+                    <p className="mb-1">22 Karat</p>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="border-start border-gold ps-3">
+                    <h6 className="text-gold">Weight</h6>
+                    <p className="mb-1">5.2 gm</p>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="border-start border-gold ps-3">
+                    <h6 className="text-gold">Certification</h6>
+                    <p className="mb-1">BIS Hallmarked</p>
+                  </div>
+                </div>
+              </div>
+
               <button
-                className="btn btn-outline-dark"
+                className="btn btn-gold"
                 onClick={() => addProduct(product)}
               >
                 Add to Cart
               </button>
-              <Link to="/cart" className="btn btn-dark mx-3">
+              <Link to="/cart" className="btn btn-outline-gold mx-3">
                 Go to Cart
               </Link>
             </div>
@@ -175,12 +210,8 @@ const Product = () => {
         <div className="row">{loading ? <Loading /> : <ShowProduct />}</div>
         <div className="row my-5 py-5">
           <div className="d-none d-md-block">
-          <h2 className="">You may also Like</h2>
-            <Marquee
-              pauseOnHover={true}
-              pauseOnClick={true}
-              speed={50}
-            >
+            <h2 className="text-charcoal">Featured Collections</h2>
+            <Marquee pauseOnHover={true} pauseOnClick={true} speed={50}>
               {loading2 ? <Loading2 /> : <ShowSimilarProduct />}
             </Marquee>
           </div>
