@@ -30,6 +30,7 @@ import Payment from "./pages/payment";
 import Orders from "./pages/Orders";
 import OrderHistory from "./pages/OrderHistory";
 import Invoice from "./pages/Invoice";
+import Chatai from "./pages/Chatai";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <ThemeProvider>
@@ -55,6 +56,7 @@ root.render(
             <Route path="/orders" element={<Orders />} />
             <Route path="/order-history" element={<OrderHistory />} />
             <Route path="/invoice/:orderId" element={<Invoice />} />
+      <Route path="/chatai" element={<Chatai />} />
           </Routes>
         </Provider>
       </ScrollToTop>

@@ -2,19 +2,37 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Footer, Navbar } from "../components";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+
+const S = `
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Cinzel:wght@500;600;700&family=Lato:wght@400;700&display=swap');
+  .jp-d{font-family:'Cinzel',serif;font-weight:600}
+  .jp-s{font-family:'Cormorant Garamond',serif;font-weight:600}
+  .jp-l{font-family:'Lato',sans-serif}
+  .jp-div{background:linear-gradient(90deg,transparent,#c69e8f 30%,#6d4e19 50%,#c69e8f 70%,transparent);height:1px;border:none}
+  .jp-order-card{background:white;border:1px solid rgba(188,193,194,.35);margin-bottom:20px;transition:box-shadow .3s}
+  .jp-order-card:hover{box-shadow:0 8px 32px rgba(109,78,25,.1)}
+  .jp-invoice-btn{font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:10px 20px;background:transparent;color:#6d4e19;border:1px solid rgba(109,78,25,.4);cursor:pointer;transition:all .3s;text-decoration:none;display:inline-block}
+  .jp-invoice-btn:hover{background:#6d4e19;color:#f5f6f5;border-color:#6d4e19}
+  .jp-cancel-btn{font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:10px 20px;background:transparent;color:#a03030;border:1px solid rgba(160,48,48,.35);cursor:pointer;transition:all .3s}
+  .jp-cancel-btn:hover{background:#a03030;color:white;border-color:#a03030}
+  .modal-bg{position:fixed;inset:0;background:rgba(61,50,40,.55);display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px}
+  .modal-inner{background:white;border:1px solid rgba(188,193,194,.35);padding:36px;max-width:520px;width:100%;position:relative}
+  .modal-close{font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;background:transparent;border:1px solid rgba(109,78,25,.3);color:#6d4e19;padding:7px 14px;cursor:pointer;transition:all .2s}
+  .modal-close:hover{background:#6d4e19;color:#f5f6f5}
+`;
+
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const userId = localStorage.getItem("userId");
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
   useEffect(() => {
-    axios
-      .get(`http://localhost/Jewellerydb/getUserOrders.php?user_id=${userId}`)
+    axios.get(`http://localhost/Jewellerydb/getUserOrders.php?user_id=${userId}`)
       .then((response) => {
         if (response.data.status) {
-          const completedOrders = response.data.data.filter(
-            (order) => order.order_status === "Delivered"
-          );
+          const completedOrders = response.data.data.filter((order) => order.order_status === "Delivered");
           setOrders(completedOrders);
         }
       })
@@ -27,227 +45,126 @@ const navigate = useNavigate();
       formData.append("order_id", order_id);
       formData.append("product_id", product_id);
       formData.append("user_id", user_id);
-
-      axios
-        .post("http://localhost/Jewellerydb/cancleorder.php", formData)
+      axios.post("http://localhost/Jewellerydb/cancleorder.php", formData)
         .then((response) => {
           if (response.data.status) {
             alert("Order cancelled successfully");
-
-            setOrders((prevOrders) =>
-              prevOrders.filter((order) => order.order_id !== order_id)
-            );
-          } else {
-            alert("Failed to cancel order.");
-          }
+            setOrders((prevOrders) => prevOrders.filter((order) => order.order_id !== order_id));
+          } else { alert("Failed to cancel order."); }
         })
-        .catch((err) => {
-          console.log(err);
-          alert("Error cancelling order");
-        });
+        .catch((err) => { console.log(err); alert("Error cancelling order"); });
     }
   };
 
   return (
     <>
+      <style>{S}</style>
       <Navbar />
+      <div style={{ background:"#f5f6f5", minHeight:"100vh" }}>
 
-      <div className="container py-5">
-        <h2 className="mb-4 fw-bold">Order History</h2>
+        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:.7 }}
+          style={{ background:"linear-gradient(160deg,#faf8f4 0%,#f5efe6 60%,#faf8f4 100%)", padding:"52px 24px 44px", textAlign:"center", borderBottom:"1px solid rgba(188,193,194,.3)" }}>
+          <p className="jp-l" style={{ color:"#c69e8f", fontSize:10, letterSpacing:".45em", textTransform:"uppercase", fontWeight:700, marginBottom:14 }}>✦ Delivered Orders ✦</p>
+          <h1 className="jp-d" style={{ color:"#6d4e19", fontSize:"clamp(24px,4vw,40px)", fontWeight:700, marginBottom:10 }}>Order History</h1>
+          <div className="jp-div" style={{ width:80, margin:"0 auto" }} />
+        </motion.div>
 
-        {orders.length === 0 ? (
-          <div className="text-center py-5">
-            <h5>No completed orders found</h5>
-          </div>
-        ) : (
-          orders.map((order) => (
-            <div
-              key={order.id}
-              className="card mb-4 shadow-sm border-0"
-              style={{ borderRadius: "12px" }}
-            >
-              {/* HEADER */}
-              <div
-                className="card-header bg-light d-flex justify-content-between flex-wrap"
-                style={{ borderRadius: "12px 12px 0 0" }}
-              >
-                <div>
-                  <small className="text-muted">ORDER PLACED</small>
-                  <div>{order.order_date}</div>
-                </div>
+        <div style={{ maxWidth:900, margin:"0 auto", padding:"48px 24px 96px" }}>
+          {orders.length === 0 ? (
+            <div style={{ textAlign:"center", padding:"80px 0" }}>
+              <p className="jp-d" style={{ color:"#bdc1c2", fontSize:13, letterSpacing:".2em", textTransform:"uppercase" }}>No completed orders found</p>
+            </div>
+          ) : (
+            orders.map((order, idx) => (
+              <motion.div key={order.id || idx} className="jp-order-card"
+                initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:idx*.07 }}>
 
-                <div>
-                  <small className="text-muted">TOTAL</small>
-
-                  <div className="fw-semibold">
-                    ₹ {order.final_price}
-                  </div>
-
+                {/* Header */}
+                <div style={{ background:"#faf8f4", borderBottom:"1px solid rgba(188,193,194,.3)", padding:"16px 24px", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+                  {[
+                    { label:"Order Placed", value:order.order_date },
+                    { label:"Order ID", value:`#${order.order_id}` },
+                    { label:"Final Total", value:`₹ ${order.final_price}` },
+                  ].map((h) => (
+                    <div key={h.label}>
+                      <p className="jp-l" style={{ fontSize:9, fontWeight:700, letterSpacing:".2em", textTransform:"uppercase", color:"#c69e8f", marginBottom:3 }}>{h.label}</p>
+                      <p className="jp-d" style={{ fontSize:13, fontWeight:700, color:"#3d3228" }}>{h.value}</p>
+                    </div>
+                  ))}
                   {order.discount_amount > 0 && (
-                    <>
-                      <small className="text-muted text-decoration-line-through">
-                        ₹ {order.total_price}
-                      </small>
-                      <div className="text-success small">
-                        You saved ₹ {order.discount_amount}
-                      </div>
-                    </>
+                    <div>
+                      <p className="jp-l" style={{ fontSize:9, fontWeight:700, letterSpacing:".2em", textTransform:"uppercase", color:"#c69e8f", marginBottom:3 }}>You Saved</p>
+                      <p className="jp-d" style={{ fontSize:13, fontWeight:700, color:"#6d4e19" }}>₹ {order.discount_amount}</p>
+                    </div>
                   )}
                 </div>
 
-                <div>
-                  <small className="text-muted">ORDER ID</small>
-                  <div className="fw-semibold">#{order.order_id}</div>
-                </div>
-              </div>
+                {/* Body */}
+                <div style={{ padding:"20px 24px", display:"grid", gridTemplateColumns:"80px 1fr auto", gap:20, alignItems:"center" }}>
+                  <div style={{ width:80, height:80, background:"#faf8f4", border:"1px solid rgba(188,193,194,.3)", overflow:"hidden" }}>
+                    <img src={order.product_image ? `http://localhost/Jewellerydb/${order.product_image}` : "https://via.placeholder.com/80"}
+                      alt="product" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+                  </div>
 
-              {/* BODY */}
-              <div className="card-body">
-                <div className="row align-items-center">
+                  <div>
+                    <p className="jp-d" style={{ fontSize:14, fontWeight:700, color:"#6d4e19", marginBottom:6 }}>{order.product_name || "Jewellery Product"}</p>
+                    <span className="jp-l" style={{ fontSize:9, fontWeight:700, letterSpacing:".15em", textTransform:"uppercase", background:"rgba(109,78,25,.08)", color:"#6d4e19", border:"1px solid rgba(109,78,25,.2)", padding:"3px 10px", display:"inline-block", marginBottom:6 }}>
+                      {order.order_status}
+                    </span>
+                    <p className="jp-s" style={{ fontSize:15, fontStyle:"italic", color:"#3d3228", fontWeight:700 }}>₹ {order.final_price}</p>
+                    {order.discount_amount > 0 && (
+                      <p className="jp-l" style={{ fontSize:11, fontWeight:700, color:"#c69e8f", marginTop:2 }}>Saved ₹ {order.discount_amount}</p>
+                    )}
+                    {order.promocode && (
+                      <span className="jp-l" style={{ fontSize:9, fontWeight:700, letterSpacing:".15em", textTransform:"uppercase", background:"rgba(198,158,143,.15)", color:"#8b5e3c", border:"1px solid rgba(198,158,143,.4)", padding:"3px 8px", display:"inline-block", marginTop:4 }}>{order.promocode}</span>
+                    )}
+                  </div>
 
-                  {/* IMAGE + CANCEL */}
-                  <div className="col-md-2 text-center">
-                    <button
-                      onClick={() =>
-                        handleCancelOrder(
-                          order.order_id,
-                          order.product_id,
-                          order.user_id
-                        )
-                      }
-                      className="btn btn-danger mb-2"
-                    >
-                      Cancel Order
+                  <div style={{ display:"flex", flexDirection:"column", gap:10, alignItems:"flex-end" }}>
+                    <button className="jp-cancel-btn" onClick={() => handleCancelOrder(order.order_id, order.product_id, order.user_id)}>
+                      Cancel
                     </button>
-
-                    <img
-                      src={
-                        order.product_image
-                          ? `http://localhost/Jewellerydb/${order.product_image}`
-                          : "https://via.placeholder.com/120"
-                      }
-                      alt="product"
-                      className="img-fluid rounded"
-                    />
-                  </div>
-
-                  {/* INFO */}
-                  <div className="col-md-6">
-                    <h5 className="mb-1">
-                      {order.product_name || "Jewellery Product"}
-                    </h5>
-
-                    <p className="text-muted mb-2">
-                      Status: <span className="badge bg-success">
-                        {order.order_status}
-                      </span>
-                    </p>
-
-                    {/* PRICE SECTION */}
-                    <div>
-                      <p className="mb-0 fw-semibold">
-                        ₹ {order.final_price}
-                      </p>
-
-                      {order.discount_amount > 0 && (
-                        <>
-                          <small className="text-muted text-decoration-line-through">
-                            ₹ {order.total_price}
-                          </small>
-
-                          <div className="text-success small">
-                            Saved ₹ {order.discount_amount}
-                          </div>
-
-                          {order.promocode && (
-                            <div className="badge bg-success mt-1">
-                              {order.promocode}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* BUTTONS */}
-                  <div className="col-md-4 text-md-end mt-3 mt-md-0">
-                    
-
-                    <button
-                      className="btn btn-outline-dark mb-2"
-                      onClick={() =>
-                       navigate(`/invoice/${order.order_id}`)
-                      }
-                    >
+                    <button className="jp-invoice-btn" onClick={() => navigate(`/invoice/${order.order_id}`)}>
                       View Invoice
                     </button>
+                    <button className="jp-invoice-btn" onClick={() => navigate(`/${order.order_id}`)}>
+                      Review Product
+                    </button>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))
-        )}
+              </motion.div>
+            ))
+          )}
+        </div>
       </div>
 
-      {/* MODAL */}
-      {selectedOrder && (
-        <div
-          className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.6)" }}
-        >
-          <div className="modal-dialog modal-lg modal-dialog-centered">
-            <div className="modal-content p-4" style={{ borderRadius: "15px" }}>
-
-              <div className="text-end">
-                <button
-                  className="btn-close"
-                  onClick={() => setSelectedOrder(null)}
-                ></button>
+      {/* Detail modal (selectedOrder) */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <motion.div className="modal-bg" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+            onClick={(e) => { if (e.target === e.currentTarget) setSelectedOrder(null); }}>
+            <motion.div className="modal-inner" initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:20 }}>
+                <p className="jp-d" style={{ fontSize:16, fontWeight:700, color:"#6d4e19" }}>{selectedOrder.product_name}</p>
+                <button className="modal-close" onClick={() => setSelectedOrder(null)}>Close</button>
               </div>
-
-              <div className="d-flex align-items-center mb-4">
-                <img
-                  src={`http://localhost/Jewellerydb/${selectedOrder.product_image}`}
-                  alt=""
-                  width="120"
-                  className="rounded me-4"
-                />
+              <div className="jp-div" style={{ marginBottom:20 }} />
+              <div style={{ display:"flex", gap:16, alignItems:"center", marginBottom:20 }}>
+                <img src={`http://localhost/Jewellerydb/${selectedOrder.product_image}`} alt="" width={80} style={{ objectFit:"cover", border:"1px solid rgba(188,193,194,.3)" }} />
                 <div>
-                  <h4>{selectedOrder.product_name}</h4>
-
-                  <h5 className="fw-bold">
-                    ₹ {selectedOrder.final_price}
-                  </h5>
-
+                  <p className="jp-d" style={{ fontSize:18, fontWeight:700, color:"#6d4e19" }}>₹ {selectedOrder.final_price}</p>
                   {selectedOrder.discount_amount > 0 && (
-                    <>
-                      <small className="text-muted text-decoration-line-through">
-                        ₹ {selectedOrder.total_price}
-                      </small>
-
-                      <div className="text-success">
-                        You saved ₹ {selectedOrder.discount_amount}
-                      </div>
-
-                      {selectedOrder.promocode && (
-                        <div className="badge bg-success mt-1">
-                          {selectedOrder.promocode}
-                        </div>
-                      )}
-                    </>
+                    <p className="jp-l" style={{ fontSize:12, fontWeight:700, color:"#c69e8f" }}>Saved ₹ {selectedOrder.discount_amount}</p>
                   )}
                 </div>
               </div>
-
-              <hr />
-
-              <div className="alert alert-success">
-                This order has been successfully delivered.
+              <div style={{ background:"rgba(109,78,25,.06)", border:"1px solid rgba(109,78,25,.15)", padding:"14px 18px" }}>
+                <p className="jp-d" style={{ fontSize:11, letterSpacing:".12em", textTransform:"uppercase", color:"#6d4e19" }}>This order has been successfully delivered.</p>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </>

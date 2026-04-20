@@ -1,6 +1,31 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Footer, Navbar } from "../components";
+import { motion, AnimatePresence } from "framer-motion";
+
+const S = `
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Cinzel:wght@500;600;700&family=Lato:wght@400;700&display=swap');
+  .jp-d{font-family:'Cinzel',serif;font-weight:600}
+  .jp-s{font-family:'Cormorant Garamond',serif;font-weight:600}
+  .jp-l{font-family:'Lato',sans-serif}
+  .jp-div{background:linear-gradient(90deg,transparent,#c69e8f 30%,#6d4e19 50%,#c69e8f 70%,transparent);height:1px;border:none}
+  .jp-order-card{background:white;border:1px solid rgba(188,193,194,.35);margin-bottom:20px;transition:box-shadow .3s}
+  .jp-order-card:hover{box-shadow:0 8px 32px rgba(109,78,25,.1)}
+  .jp-track-btn{font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:10px 24px;background:linear-gradient(135deg,#6d4e19,#8b6520);color:#f5f6f5;border:none;cursor:pointer;transition:all .3s}
+  .jp-track-btn:hover{background:linear-gradient(135deg,#5a3f14,#6d4e19);box-shadow:0 4px 16px rgba(109,78,25,.3)}
+  .jp-status{font-family:'Lato',sans-serif;font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:4px 12px;display:inline-block}
+  .modal-bg{position:fixed;inset:0;background:rgba(61,50,40,.55);display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px}
+  .modal-inner{background:white;border:1px solid rgba(188,193,194,.35);padding:36px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;position:relative}
+  .modal-close{font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;background:transparent;border:1px solid rgba(109,78,25,.3);color:#6d4e19;padding:7px 14px;cursor:pointer;transition:all .2s}
+  .modal-close:hover{background:#6d4e19;color:#f5f6f5}
+`;
+
+const statusColor = (s) => {
+  if (s === "Completed" || s === "Delivered") return { bg:"rgba(109,78,25,.08)", color:"#6d4e19", border:"rgba(109,78,25,.2)" };
+  if (s === "Processing") return { bg:"rgba(198,158,143,.12)", color:"#8b5e3c", border:"rgba(198,158,143,.4)" };
+  if (s === "Cancelled") return { bg:"rgba(180,60,60,.08)", color:"#a03030", border:"rgba(180,60,60,.2)" };
+  return { bg:"rgba(188,193,194,.15)", color:"#74878b", border:"rgba(188,193,194,.4)" };
+};
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -8,291 +33,144 @@ const Orders = () => {
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    axios
-      .get(`http://localhost/Jewellerydb/getUserOrders.php?user_id=${userId}`)
-      .then((response) => {
-        if (response.data.status) {
-          setOrders(response.data.data);
-        }
-      })
+    axios.get(`http://localhost/Jewellerydb/getUserOrders.php?user_id=${userId}`)
+      .then((response) => { if (response.data.status) setOrders(response.data.data); })
       .catch((err) => console.log(err));
   }, [userId]);
 
+  const steps = [
+    { label: "Order Received", key: "Pending" },
+    { label: "Order Processed", key: "Processing" },
+    { label: "Manufacturing In Progress", key: "Processing" },
+    { label: "Order Dispatched", key: "Completed" },
+    { label: "Order Delivered", key: "Completed" },
+  ];
+
+  const isActive = (stepKey, status) => {
+    if (status === "Cancelled") return false;
+    if (status === "Completed") return true;
+    if (status === "Processing" && stepKey !== "Completed") return true;
+    if (status === "Pending" && stepKey === "Pending") return true;
+    return false;
+  };
+
   return (
     <>
+      <style>{S}</style>
       <Navbar />
+      <div style={{ background:"#f5f6f5", minHeight:"100vh" }}>
 
-      <div className="container py-5">
-        <h2 className="mb-4 fw-bold">Your Orders</h2>
+        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:.7 }}
+          style={{ background:"linear-gradient(160deg,#faf8f4 0%,#f5efe6 60%,#faf8f4 100%)", padding:"52px 24px 44px", textAlign:"center", borderBottom:"1px solid rgba(188,193,194,.3)" }}>
+          <p className="jp-l" style={{ color:"#c69e8f", fontSize:10, letterSpacing:".45em", textTransform:"uppercase", fontWeight:700, marginBottom:14 }}>✦ Your Orders ✦</p>
+          <h1 className="jp-d" style={{ color:"#6d4e19", fontSize:"clamp(24px,4vw,40px)", fontWeight:700, marginBottom:10 }}>Order Tracking</h1>
+          <div className="jp-div" style={{ width:80, margin:"0 auto" }} />
+        </motion.div>
 
-        {orders.length === 0 ? (
-          <div className="text-center py-5">
-            <h5>No orders found</h5>
-          </div>
-        ) : (
-          orders.map((order) => (
-            <div
-              key={order.id}
-              className="card mb-4 shadow-sm border-0"
-              style={{ borderRadius: "12px" }}
-            >
-              {/* Top Bar */}
-              <div
-                className="card-header bg-light d-flex justify-content-between flex-wrap"
-                style={{ borderRadius: "12px 12px 0 0" }}
-              >
-                <div>
-                  <small className="text-muted">ORDER PLACED</small>
-                  <div>{order.order_date}</div>
-                </div>
+        <div style={{ maxWidth:900, margin:"0 auto", padding:"48px 24px 96px" }}>
+          {orders.length === 0 ? (
+            <div style={{ textAlign:"center", padding:"80px 0" }}>
+              <p className="jp-d" style={{ color:"#bdc1c2", fontSize:13, letterSpacing:".2em", textTransform:"uppercase" }}>No orders found</p>
+            </div>
+          ) : (
+            orders.map((order, idx) => {
+              const sc = statusColor(order.order_status);
+              return (
+                <motion.div key={order.id || idx} className="jp-order-card"
+                  initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:idx*.07 }}>
 
-                <div>
-                  <small className="text-muted">TOTAL</small>
-
-                  <div className="fw-semibold">
-                    ₹ {order.final_price}
-                  </div>
-
-                  {order.discount_amount > 0 && (
-                    <>
-                      <small className="text-muted text-decoration-line-through">
-                        ₹ {order.total_price}
-                      </small>
-                      <div className="text-success small">
-                        You saved ₹ {order.discount_amount}
+                  {/* Card header */}
+                  <div style={{ background:"#faf8f4", borderBottom:"1px solid rgba(188,193,194,.3)", padding:"16px 24px", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+                    {[
+                      { label:"Order Placed", value:order.order_date },
+                      { label:"Order ID", value:`#${order.order_id}` },
+                      { label:"Total", value:`₹ ${order.final_price}` },
+                    ].map((h) => (
+                      <div key={h.label}>
+                        <p className="jp-l" style={{ fontSize:9, fontWeight:700, letterSpacing:".2em", textTransform:"uppercase", color:"#c69e8f", marginBottom:3 }}>{h.label}</p>
+                        <p className="jp-d" style={{ fontSize:13, fontWeight:700, color:"#3d3228" }}>{h.value}</p>
                       </div>
-                    </>
-                  )}
-                </div>
-
-                <div>
-                  <small className="text-muted">ORDER ID</small>
-                  <div className="fw-semibold">#{order.order_id}</div>
-                </div>
-              </div>
-
-              {/* Body */}
-              <div className="card-body">
-                <div className="row align-items-center">
-
-                  {/* Image */}
-                  <div className="col-md-2 text-center">
-                    <img
-                      src={
-                        order.product_image
-                          ? `http://localhost/Jewellerydb/${order.product_image}`
-                          : "https://via.placeholder.com/120"
-                      }
-                      alt="product"
-                      className="img-fluid rounded"
-                    />
+                    ))}
+                    {order.discount_amount > 0 && (
+                      <div>
+                        <p className="jp-l" style={{ fontSize:9, fontWeight:700, letterSpacing:".2em", textTransform:"uppercase", color:"#c69e8f", marginBottom:3 }}>Saved</p>
+                        <p className="jp-d" style={{ fontSize:13, fontWeight:700, color:"#6d4e19" }}>₹ {order.discount_amount}</p>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Info */}
-                  <div className="col-md-6">
-                    <h5 className="mb-1">
-                      {order.product_name || "Jewellery Product"}
-                    </h5>
+                  {/* Card body */}
+                  <div style={{ padding:"20px 24px", display:"grid", gridTemplateColumns:"80px 1fr auto", gap:20, alignItems:"center" }}>
+                    <div style={{ width:80, height:80, background:"#faf8f4", border:"1px solid rgba(188,193,194,.3)", overflow:"hidden" }}>
+                      <img src={order.product_image ? `http://localhost/Jewellerydb/${order.product_image}` : "https://via.placeholder.com/80"}
+                        alt="product" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+                    </div>
 
-                    <p className="text-muted mb-2">
-                      Status:{" "}
-                      <span
-                        className={`badge ${
-                          order.order_status === "Completed"
-                            ? "bg-success"
-                            : order.order_status === "Processing"
-                            ? "bg-warning text-dark"
-                            : order.order_status === "Cancelled"
-                            ? "bg-danger"
-                            : "bg-secondary"
-                        }`}
-                      >
-                        {order.order_status}
-                      </span>
-                    </p>
-
-                    {/* PRICE SECTION */}
                     <div>
-                      <p className="mb-0 fw-semibold">
-                        ₹ {order.final_price}
-                      </p>
-
-                      {order.discount_amount > 0 && (
-                        <>
-                          <small className="text-muted text-decoration-line-through">
-                            ₹ {order.total_price}
-                          </small>
-
-                          <div className="text-success small">
-                            Saved ₹ {order.discount_amount}
-                          </div>
-
-                          {order.promocode && (
-                            <div className="badge bg-success mt-1">
-                              {order.promocode}
-                            </div>
-                          )}
-                        </>
+                      <p className="jp-d" style={{ fontSize:14, fontWeight:700, color:"#6d4e19", marginBottom:6 }}>{order.product_name || "Jewellery Product"}</p>
+                      <span className="jp-status" style={{ background:sc.bg, color:sc.color, border:`1px solid ${sc.border}` }}>{order.order_status}</span>
+                      <p className="jp-s" style={{ fontSize:15, fontStyle:"italic", color:"#3d3228", marginTop:6, fontWeight:700 }}>₹ {order.final_price}</p>
+                      {order.promocode && (
+                        <span className="jp-l" style={{ fontSize:9, fontWeight:700, letterSpacing:".15em", textTransform:"uppercase", background:"rgba(109,78,25,.08)", color:"#6d4e19", border:"1px solid rgba(109,78,25,.2)", padding:"3px 8px", display:"inline-block", marginTop:4 }}>{order.promocode}</span>
                       )}
                     </div>
-                  </div>
 
-                  {/* Buttons */}
-                  <div className="col-md-4 text-md-end mt-3 mt-md-0">
-                    <button
-                      className="btn btn-primary me-2 mb-2"
-                      onClick={() => setSelectedOrder(order)}
-                    >
-                      Track Order
-                    </button>
-
-                    
+                    <button className="jp-track-btn" onClick={() => setSelectedOrder(order)}>Track Order</button>
                   </div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+                </motion.div>
+              );
+            })
+          )}
+        </div>
       </div>
 
-      {/* TRACK ORDER MODAL */}
-      {selectedOrder && (
-        <div
-          className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.6)" }}
-        >
-          <div className="modal-dialog modal-lg modal-dialog-centered">
-            <div className="modal-content p-4" style={{ borderRadius: "15px" }}>
-              
-              {/* Close */}
-              <div className="text-end">
-                <button
-                  className="btn-close"
-                  onClick={() => setSelectedOrder(null)}
-                ></button>
-              </div>
-
-              {/* Product Info */}
-              <div className="d-flex align-items-center mb-4">
-                <img
-                  src={`http://localhost/Jewellerydb/${selectedOrder.product_image}`}
-                  alt="product"
-                  width="120"
-                  className="rounded me-4"
-                />
+      {/* Track modal */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <motion.div className="modal-bg" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+            onClick={(e) => { if (e.target === e.currentTarget) setSelectedOrder(null); }}>
+            <motion.div className="modal-inner" initial={{ opacity:0, y:24, scale:.97 }} animate={{ opacity:1, y:0, scale:1 }} exit={{ opacity:0, y:12 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:24 }}>
                 <div>
-                  <h4>{selectedOrder.product_name}</h4>
-
-                  <h5 className="fw-bold">
-                    ₹ {selectedOrder.final_price}
-                  </h5>
-
-                  {selectedOrder.discount_amount > 0 && (
-                    <>
-                      <small className="text-muted text-decoration-line-through">
-                        ₹ {selectedOrder.total_price}
-                      </small>
-
-                      <div className="text-success">
-                        You saved ₹ {selectedOrder.discount_amount}
-                      </div>
-
-                      {selectedOrder.promocode && (
-                        <div className="badge bg-success mt-1">
-                          {selectedOrder.promocode}
-                        </div>
-                      )}
-                    </>
-                  )}
+                  <p className="jp-l" style={{ color:"#c69e8f", fontSize:10, fontWeight:700, letterSpacing:".4em", textTransform:"uppercase", marginBottom:8 }}>✦ Tracking ✦</p>
+                  <p className="jp-d" style={{ fontSize:16, fontWeight:700, color:"#6d4e19" }}>{selectedOrder.product_name}</p>
+                  <p className="jp-d" style={{ fontSize:18, fontWeight:700, color:"#3d3228", marginTop:4 }}>₹ {selectedOrder.final_price}</p>
                 </div>
+                <button className="modal-close" onClick={() => setSelectedOrder(null)}>Close</button>
               </div>
-
-              <hr />
+              <div className="jp-div" style={{ marginBottom:28 }} />
 
               {/* Timeline */}
               {(() => {
                 const orderDate = new Date(selectedOrder.order_date);
                 const deliveryDate = new Date(orderDate);
                 deliveryDate.setDate(orderDate.getDate() + 7);
-
-                const steps = [
-                  { label: "Order Received", key: "Pending" },
-                  { label: "Order Processed", key: "Processing" },
-                  { label: "Manufacturing In Progress", key: "Processing" },
-                  { label: "Order Dispatched", key: "Completed" },
-                  { label: "Order Delivered", key: "Completed" },
-                ];
-
-                const isActive = (stepKey) => {
-                  if (selectedOrder.order_status === "Cancelled") return false;
-                  if (selectedOrder.order_status === "Completed") return true;
-
-                  if (
-                    selectedOrder.order_status === "Processing" &&
-                    stepKey !== "Completed"
-                  )
-                    return true;
-
-                  if (
-                    selectedOrder.order_status === "Pending" &&
-                    stepKey === "Pending"
-                  )
-                    return true;
-
-                  return false;
-                };
-
                 return (
-                  <div className="position-relative mt-4">
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: "15px",
-                        top: "0",
-                        bottom: "0",
-                        width: "4px",
-                        background:
-                          selectedOrder.order_status === "Cancelled"
-                            ? "red"
-                            : "#ff6600",
-                      }}
-                    ></div>
-
-                    {steps.map((step, index) => (
-                      <div key={index} className="d-flex mb-4 position-relative">
-
-                        <div
-                          style={{
-                            width: "30px",
-                            height: "30px",
-                            borderRadius: "50%",
-                            background: isActive(step.key)
-                              ? selectedOrder.order_status === "Cancelled"
-                                ? "red"
-                                : "#ff6600"
-                              : "#ddd",
-                            marginRight: "20px",
-                            zIndex: 1,
-                          }}
-                        ></div>
-
-                        <div>
-                          <h6 className="mb-1">{step.label}</h6>
-                          <small className="text-muted">
-                            {step.label === "Order Delivered"
-                              ? deliveryDate.toDateString()
-                              : orderDate.toDateString()}
-                          </small>
+                  <div style={{ position:"relative", paddingLeft:20 }}>
+                    <div style={{ position:"absolute", left:14, top:8, bottom:8, width:2, background:"rgba(188,193,194,.5)" }} />
+                    {steps.map((step, i) => {
+                      const active = isActive(step.key, selectedOrder.order_status);
+                      return (
+                        <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:16, marginBottom:i < steps.length-1 ? 24 : 0, position:"relative" }}>
+                          <div style={{ width:28, height:28, borderRadius:"50%", background: active ? "#6d4e19" : "white", border:`2px solid ${active ? "#6d4e19" : "rgba(188,193,194,.5)"}`, flexShrink:0, zIndex:1, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                            {active && <div style={{ width:8, height:8, borderRadius:"50%", background:"#f5efe6" }} />}
+                          </div>
+                          <div style={{ paddingTop:4 }}>
+                            <p className="jp-d" style={{ fontSize:12, fontWeight:700, letterSpacing:".08em", color: active ? "#6d4e19" : "#bdc1c2" }}>{step.label}</p>
+                            <p className="jp-l" style={{ fontSize:11, fontWeight:700, color:"#bdc1c2", marginTop:2 }}>
+                              {step.label === "Order Delivered" ? deliveryDate.toDateString() : orderDate.toDateString()}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 );
               })()}
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </>
