@@ -9,7 +9,12 @@ const Particle = ({ style }) => (
     className="absolute rounded-full pointer-events-none"
     style={style}
     animate={{ y: [0, -28, 0], opacity: [0.15, 0.55, 0.15] }}
-    transition={{ duration: style.duration, repeat: Infinity, ease: "easeInOut", delay: style.delay }}
+    transition={{
+      duration: style.duration,
+      repeat: Infinity,
+      ease: "easeInOut",
+      delay: style.delay,
+    }}
   />
 );
 
@@ -63,7 +68,9 @@ const fadeUp = {
 
 export default function Home() {
   return (
-    <div style={{ background: "#f5f6f5", minHeight: "100vh", overflowX: "hidden" }}>
+    <div
+      style={{ background: "#f5f6f5", minHeight: "100vh", overflowX: "hidden" }}
+    >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cinzel:wght@500;600;700&family=Lato:wght@400;700&display=swap');
         .hf-display  { font-family: 'Cinzel', serif; font-weight: 600; }
@@ -148,59 +155,168 @@ export default function Home() {
           backgroundAttachment: "fixed",
         }}
       >
-        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-          {particles.map((p, i) => <Particle key={i} style={p} />)}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            overflow: "hidden",
+            pointerEvents: "none",
+          }}
+        >
+          {particles.map((p, i) => (
+            <Particle key={i} style={p} />
+          ))}
         </div>
 
         {[
-          { top: 32, left: 32, borderTop: "1px solid", borderLeft: "1px solid" },
-          { top: 32, right: 32, borderTop: "1px solid", borderRight: "1px solid" },
-          { bottom: 32, left: 32, borderBottom: "1px solid", borderLeft: "1px solid" },
-          { bottom: 32, right: 32, borderBottom: "1px solid", borderRight: "1px solid" },
+          {
+            top: 32,
+            left: 32,
+            borderTop: "1px solid",
+            borderLeft: "1px solid",
+          },
+          {
+            top: 32,
+            right: 32,
+            borderTop: "1px solid",
+            borderRight: "1px solid",
+          },
+          {
+            bottom: 32,
+            left: 32,
+            borderBottom: "1px solid",
+            borderLeft: "1px solid",
+          },
+          {
+            bottom: 32,
+            right: 32,
+            borderBottom: "1px solid",
+            borderRight: "1px solid",
+          },
         ].map((s, i) => (
-          <div key={i} style={{ position: "absolute", width: 56, height: 56, borderColor: "rgba(109,78,25,0.25)", pointerEvents: "none", ...s }} />
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              width: 56,
+              height: 56,
+              borderColor: "rgba(109,78,25,0.25)",
+              pointerEvents: "none",
+              ...s,
+            }}
+          />
         ))}
 
         <motion.div
-          style={{ position: "relative", zIndex: 10, textAlign: "center", padding: "0 24px", maxWidth: 720, margin: "0 auto" }}
+          style={{
+            position: "relative",
+            zIndex: 10,
+            textAlign: "center",
+            padding: "0 24px",
+            maxWidth: 720,
+            margin: "0 auto",
+          }}
           variants={stagger}
           initial="hidden"
           animate="show"
         >
-          <motion.p variants={fadeUp} className="hf-sans"
-            style={{ letterSpacing: "0.45em", color: "#4a3a2a", fontSize: 10, textTransform: "uppercase", marginBottom: 20 }}>
+          <motion.p
+            variants={fadeUp}
+            className="hf-sans"
+            style={{
+              letterSpacing: "0.45em",
+              color: "#4a3a2a",
+              fontSize: 10,
+              textTransform: "uppercase",
+              marginBottom: 20,
+            }}
+          >
             ✦ Exclusive Fine Jewellery ✦
           </motion.p>
 
-          <motion.h1 variants={fadeUp} style={{ marginBottom: 20, lineHeight: 1.1 }}>
-            <span className="shimmer-dark hf-display"
-              style={{ display: "block", fontSize: "clamp(38px, 7vw, 72px)", fontWeight: 400 }}>
+          <motion.h1
+            variants={fadeUp}
+            style={{ marginBottom: 20, lineHeight: 1.1 }}
+          >
+            <span
+              className="shimmer-dark hf-display"
+              style={{
+                display: "block",
+                fontSize: "clamp(38px, 7vw, 72px)",
+                fontWeight: 400,
+              }}
+            >
               Crafted in Gold.
             </span>
-            <span className="hf-serif"
-              style={{ display: "block", fontStyle: "italic", fontWeight: 600, fontSize: "clamp(26px, 5vw, 52px)", color: "#3d3228", marginTop: 8 }}>
+            <span
+              className="hf-serif"
+              style={{
+                display: "block",
+                fontStyle: "italic",
+                fontWeight: 600,
+                fontSize: "clamp(26px, 5vw, 52px)",
+                color: "#3d3228",
+                marginTop: 8,
+              }}
+            >
               Designed for Eternity.
             </span>
           </motion.h1>
 
-          <motion.div variants={fadeUp} className="divider-rose" style={{ width: 160, margin: "20px auto" }} />
+          <motion.div
+            variants={fadeUp}
+            className="divider-rose"
+            style={{ width: 160, margin: "20px auto" }}
+          />
 
-          <motion.p variants={fadeUp} className="hf-serif"
-            style={{ color: "#3d3228", fontSize: "clamp(15px,2.2vw,21px)", lineHeight: 1.8, fontStyle: "italic", fontWeight: 600, marginBottom: 8 }}>
-            Handcrafted luxury jewellery — from heritage solitaires to bespoke bridal collections.
+          <motion.p
+            variants={fadeUp}
+            className="hf-serif"
+            style={{
+              color: "#3d3228",
+              fontSize: "clamp(15px,2.2vw,21px)",
+              lineHeight: 1.8,
+              fontStyle: "italic",
+              fontWeight: 600,
+              marginBottom: 8,
+            }}
+          >
+            Handcrafted luxury jewellery — from heritage solitaires to bespoke
+            bridal collections.
           </motion.p>
 
-          <motion.p variants={fadeUp} className="hf-sans"
-            style={{ color: "#5a4a3a", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", marginBottom: 40 }}>
+          <motion.p
+            variants={fadeUp}
+            className="hf-sans"
+            style={{
+              color: "#5a4a3a",
+              fontSize: 10,
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
+              marginBottom: 40,
+            }}
+          >
             BIS Hallmarked · GIA Certified · Free Insured Shipping
           </motion.p>
 
-          <motion.div variants={fadeUp}
-            style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center" }}>
-              <Link to="/product">
-            <motion.button  className="btn-primary-gold" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-              ✦ Explore Collection
-            </motion.button> </Link>
+          <motion.div
+            variants={fadeUp}
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 14,
+              justifyContent: "center",
+            }}
+          >
+            <Link to="/product">
+              <motion.button
+                className="btn-primary-gold"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                ✦ Explore Collection
+              </motion.button>{" "}
+            </Link>
             {/* <motion.button className="btn-secondary-gold" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
               Book Consultation
             </motion.button> */}
@@ -208,67 +324,227 @@ export default function Home() {
         </motion.div>
 
         <motion.div
-          style={{ position: "absolute", bottom: 36, left: "50%", transform: "translateX(-50%)",
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 6, opacity: 0.4 }}
+          style={{
+            position: "absolute",
+            bottom: 36,
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 6,
+            opacity: 0.4,
+          }}
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <span className="hf-sans" style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#74878b" }}>Scroll</span>
-          <div style={{ width: 1, height: 32, background: "linear-gradient(to bottom, #6d4e19, transparent)" }} />
+          <span
+            className="hf-sans"
+            style={{
+              fontSize: 9,
+              letterSpacing: "0.35em",
+              textTransform: "uppercase",
+              color: "#74878b",
+            }}
+          >
+            Scroll
+          </span>
+          <div
+            style={{
+              width: 1,
+              height: 32,
+              background: "linear-gradient(to bottom, #6d4e19, transparent)",
+            }}
+          />
         </motion.div>
       </section>
 
       {/* TRUST BAR */}
-      <section style={{ background: "white", borderTop: "1px solid rgba(188,193,194,0.3)", borderBottom: "1px solid rgba(188,193,194,0.3)" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 24px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))" }}>
+      <section
+        style={{
+          background: "white",
+          borderTop: "1px solid rgba(188,193,194,0.3)",
+          borderBottom: "1px solid rgba(188,193,194,0.3)",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1000,
+            margin: "0 auto",
+            padding: "0 24px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))",
+          }}
+        >
           {features.map((f, i) => (
-            <motion.div key={i}
-              initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
-                padding: "22px 16px", borderRight: i < features.length - 1 ? "1px solid rgba(188,193,194,0.25)" : "none", gap: 4 }}>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                padding: "22px 16px",
+                borderRight:
+                  i < features.length - 1
+                    ? "1px solid rgba(188,193,194,0.25)"
+                    : "none",
+                gap: 4,
+              }}
+            >
               <span style={{ fontSize: 22, marginBottom: 4 }}>{f.icon}</span>
-              <span className="hf-display" style={{ color: "#6d4e19", fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase" }}>{f.label}</span>
-              <span className="hf-sans" style={{ color: "#5a4a3a", fontSize: 10 }}>{f.sub}</span>
+              <span
+                className="hf-display"
+                style={{
+                  color: "#6d4e19",
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                }}
+              >
+                {f.label}
+              </span>
+              <span
+                className="hf-sans"
+                style={{ color: "#5a4a3a", fontSize: 10 }}
+              >
+                {f.sub}
+              </span>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* COLLECTIONS */}
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "96px 24px" }}>
-        <motion.div style={{ textAlign: "center", marginBottom: 56 }}
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <p className="hf-sans" style={{ color: "#c69e8f", fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", marginBottom: 14 }}>
+      <section
+        style={{ maxWidth: 1200, margin: "0 auto", padding: "96px 24px" }}
+      >
+        <motion.div
+          style={{ textAlign: "center", marginBottom: 56 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <p
+            className="hf-sans"
+            style={{
+              color: "#c69e8f",
+              fontSize: 10,
+              letterSpacing: "0.4em",
+              textTransform: "uppercase",
+              marginBottom: 14,
+            }}
+          >
             ✦ Curated For You ✦
           </p>
-          <h2 className="hf-display" style={{ color: "#6d4e19", fontSize: "clamp(26px,4vw,42px)", fontWeight: 400, marginBottom: 16 }}>
+          <h2
+            className="hf-display"
+            style={{
+              color: "#6d4e19",
+              fontSize: "clamp(26px,4vw,42px)",
+              fontWeight: 400,
+              marginBottom: 16,
+            }}
+          >
             Our Collections
           </h2>
-          <div className="divider-rose" style={{ width: 100, margin: "0 auto" }} />
+          <div
+            className="divider-rose"
+            style={{ width: 100, margin: "0 auto" }}
+          />
         </motion.div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px,1fr))", gap: 24 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px,1fr))",
+            gap: 24,
+          }}
+        >
           {collections.map((col, i) => (
-            <motion.div key={i} className="col-card"
-              initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-              style={{ background: "white", border: "1px solid rgba(188,193,194,0.3)", overflow: "hidden", cursor: "pointer" }}>
-              <div style={{ position: "relative", height: 300, overflow: "hidden" }}>
-                <img src={col.img} alt={col.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <span className="hf-sans"
-                  style={{ position: "absolute", top: 14, left: 14, background: "#c69e8f", color: "white",
-                    fontSize: 9, letterSpacing: "0.25em", textTransform: "uppercase", padding: "5px 12px" }}>
+            <motion.div
+              key={i}
+              className="col-card"
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.15 }}
+              style={{
+                background: "white",
+                border: "1px solid rgba(188,193,194,0.3)",
+                overflow: "hidden",
+                cursor: "pointer",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  height: 300,
+                  overflow: "hidden",
+                }}
+              >
+                <img
+                  src={col.img}
+                  alt={col.title}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+                <span
+                  className="hf-sans"
+                  style={{
+                    position: "absolute",
+                    top: 14,
+                    left: 14,
+                    background: "#c69e8f",
+                    color: "white",
+                    fontSize: 9,
+                    letterSpacing: "0.25em",
+                    textTransform: "uppercase",
+                    padding: "5px 12px",
+                  }}
+                >
                   {col.tag}
                 </span>
               </div>
               <div style={{ padding: "22px 24px 26px" }}>
-                <h3 className="hf-display" style={{ color: "#6d4e19", fontSize: 17, fontWeight: 400, letterSpacing: "0.08em", marginBottom: 8 }}>
+                <h3
+                  className="hf-display"
+                  style={{
+                    color: "#6d4e19",
+                    fontSize: 17,
+                    fontWeight: 400,
+                    letterSpacing: "0.08em",
+                    marginBottom: 8,
+                  }}
+                >
                   {col.title}
                 </h3>
-                <p className="hf-serif" style={{ fontStyle: "italic", color: "#3d3228", fontSize: 15, fontWeight: 600, lineHeight: 1.7, marginBottom: 16 }}>
+                <p
+                  className="hf-serif"
+                  style={{
+                    fontStyle: "italic",
+                    color: "#3d3228",
+                    fontSize: 15,
+                    fontWeight: 600,
+                    lineHeight: 1.7,
+                    marginBottom: 16,
+                  }}
+                >
                   {col.desc}
                 </p>
                 <Link to="/product">
-                  <span className="hf-sans" style={{ color: "#6d4e19", fontSize: 10, letterSpacing: "0.25em", textTransform: "uppercase" }}>
+                  <span
+                    className="hf-sans"
+                    style={{
+                      color: "#6d4e19",
+                      fontSize: 10,
+                      letterSpacing: "0.25em",
+                      textTransform: "uppercase",
+                    }}
+                  >
                     Shop Now →
                   </span>
                 </Link>
@@ -279,47 +555,136 @@ export default function Home() {
       </section>
 
       {/* MARQUEE */}
-      <div style={{ overflow: "hidden", borderTop: "1px solid rgba(188,193,194,0.3)", borderBottom: "1px solid rgba(188,193,194,0.3)", background: "white", padding: "14px 0" }}>
-        <motion.div style={{ display: "flex", gap: 56, whiteSpace: "nowrap" }}
-          animate={{ x: ["0%", "-50%"] }} transition={{ duration: 22, repeat: Infinity, ease: "linear" }}>
-          {Array(2).fill(null).map((_, j) =>
-            ["✦ Bridal Collection","✦ Diamond Solitaires","✦ Gold Bangles","✦ Kundan Jewellery","✦ Platinum Rings","✦ Temple Jewellery","✦ Emerald Sets"].map((txt, i) => (
-              <span key={`${j}-${i}`} className="hf-display"
-                style={{ color: "#74878b", fontSize: 11, letterSpacing: "0.25em", textTransform: "uppercase" }}>
-                {txt}
-              </span>
-            ))
-          )}
+      <div
+        style={{
+          overflow: "hidden",
+          borderTop: "1px solid rgba(188,193,194,0.3)",
+          borderBottom: "1px solid rgba(188,193,194,0.3)",
+          background: "white",
+          padding: "14px 0",
+        }}
+      >
+        <motion.div
+          style={{ display: "flex", gap: 56, whiteSpace: "nowrap" }}
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+        >
+          {Array(2)
+            .fill(null)
+            .map((_, j) =>
+              [
+                "✦ Bridal Collection",
+                "✦ Diamond Solitaires",
+                "✦ Gold Bangles",
+                "✦ Kundan Jewellery",
+                "✦ Platinum Rings",
+                "✦ Temple Jewellery",
+                "✦ Emerald Sets",
+              ].map((txt, i) => (
+                <span
+                  key={`${j}-${i}`}
+                  className="hf-display"
+                  style={{
+                    color: "#74878b",
+                    fontSize: 11,
+                    letterSpacing: "0.25em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {txt}
+                </span>
+              )),
+            )}
         </motion.div>
       </div>
 
       {/* BESPOKE CTA */}
-      <section style={{
-        position: "relative", padding: "112px 24px", textAlign: "center",
-        backgroundImage: `linear-gradient(135deg, rgba(245,246,245,0.94), rgba(245,246,245,0.85)),
+      <section
+        style={{
+          position: "relative",
+          padding: "112px 24px",
+          textAlign: "center",
+          backgroundImage: `linear-gradient(135deg, rgba(245,246,245,0.94), rgba(245,246,245,0.85)),
           url('https://images.unsplash.com/photo-1574634534894-89d7576c8259?w=1400&q=80')`,
-        backgroundSize: "cover", backgroundPosition: "center",
-      }}>
-        <div className="divider-rose" style={{ position: "absolute", top: 48, left: "50%", transform: "translateX(-50%)", width: 200 }} />
-        <div className="divider-rose" style={{ position: "absolute", bottom: 48, left: "50%", transform: "translateX(-50%)", width: 200 }} />
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div
+          className="divider-rose"
+          style={{
+            position: "absolute",
+            top: 48,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 200,
+          }}
+        />
+        <div
+          className="divider-rose"
+          style={{
+            position: "absolute",
+            bottom: 48,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 200,
+          }}
+        />
 
-        <motion.div style={{ maxWidth: 640, margin: "0 auto" }}
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <p className="hf-sans" style={{ color: "#c69e8f", fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", marginBottom: 18 }}>
+        <motion.div
+          style={{ maxWidth: 640, margin: "0 auto" }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <p
+            className="hf-sans"
+            style={{
+              color: "#c69e8f",
+              fontSize: 10,
+              letterSpacing: "0.4em",
+              textTransform: "uppercase",
+              marginBottom: 18,
+            }}
+          >
             ✦ Bespoke Services ✦
           </p>
-          <h2 className="hf-display" style={{ fontSize: "clamp(26px,4vw,46px)", fontWeight: 400, marginBottom: 16, lineHeight: 1.2, color: "#6d4e19" }}>
+          <h2
+            className="hf-display"
+            style={{
+              fontSize: "clamp(26px,4vw,46px)",
+              fontWeight: 400,
+              marginBottom: 16,
+              lineHeight: 1.2,
+              color: "#6d4e19",
+            }}
+          >
             Design Your <span className="shimmer-dark">Dream Piece</span>
           </h2>
-          <p className="hf-serif" style={{ fontStyle: "italic", color: "#3d3228", fontSize: "clamp(15px,2vw,20px)", fontWeight: 600, lineHeight: 1.8, marginBottom: 36 }}>
-            Work with our master craftsmen to create a one-of-a-kind jewel — made entirely to your vision.
+          <p
+            className="hf-serif"
+            style={{
+              fontStyle: "italic",
+              color: "#3d3228",
+              fontSize: "clamp(15px,2vw,20px)",
+              fontWeight: 600,
+              lineHeight: 1.8,
+              marginBottom: 36,
+            }}
+          >
+            Work with our master craftsmen to create a one-of-a-kind jewel —
+            made entirely to your vision.
           </p>
-          <motion.button className="btn-primary-gold" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+          <motion.button
+            className="btn-primary-gold"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+          >
             ✦ Start Your Journey
           </motion.button>
         </motion.div>
       </section>
-      <Chatai />
+     
     </div>
   );
 }

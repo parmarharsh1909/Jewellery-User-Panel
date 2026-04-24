@@ -1,8 +1,67 @@
-import React from "react";
+import React, { useState } from "react";
 import { Footer, Navbar } from "../components";
 import { motion } from "framer-motion";
 
 const ContactPage = () => {
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    product_name: "",
+    message: ""
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const form = new FormData();
+      form.append("type", "inquiry");
+      form.append("name", formData.name);
+      form.append("email", formData.email);
+      form.append("mobile", formData.mobile);
+      form.append("product_name", formData.product_name);
+      form.append("message", formData.message);
+
+      const res = await fetch("http://localhost/Jewellerydb/sendmail.php", {
+        method: "POST",
+        body: form
+      });
+
+      const data = await res.json();
+
+      if (data.Status === "Success") {
+        alert("Inquiry sent successfully ✅");
+        setFormData({
+          name: "",
+          email: "",
+          mobile: "",
+          product_name: "",
+          message: ""
+        });
+      } else {
+        alert("Mail failed ❌");
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    }
+
+    setLoading(false);
+  };
+
   return (
     <>
       <style>{`
@@ -33,60 +92,22 @@ const ContactPage = () => {
           padding: 12px 16px;
           background: white;
           border: 1px solid rgba(188,193,194,0.5);
-          border-radius: 0;
           outline: none;
-          transition: border-color 0.3s ease, box-shadow 0.3s ease;
-          display: block;
-        }
-        .ct-input::placeholder {
-          font-style: italic;
-          color: #bdc1c2;
-          font-weight: 600;
-        }
-        .ct-input:focus {
-          border-color: #6d4e19;
-          box-shadow: 0 0 0 3px rgba(109,78,25,0.08);
         }
         .ct-btn {
           font-family: 'Cinzel', serif;
           font-size: 11px;
           font-weight: 700;
           letter-spacing: 0.2em;
-          text-transform: uppercase;
           padding: 14px 52px;
           background: linear-gradient(135deg, #6d4e19, #8b6520);
-          color: #f5f6f5;
+          color: #fff;
           border: none;
           cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        .ct-btn:hover:not(:disabled) {
-          background: linear-gradient(135deg, #5a3f14, #6d4e19);
-          box-shadow: 0 8px 28px rgba(109,78,25,0.3);
         }
         .ct-btn:disabled {
-          opacity: 0.55;
+          opacity: 0.5;
           cursor: not-allowed;
-        }
-        .ct-info-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 16px;
-          padding: 20px 0;
-          border-bottom: 0.5px solid rgba(188,193,194,0.35);
-        }
-        .ct-info-item:last-child { border-bottom: none; }
-        .ct-icon-wrap {
-          width: 40px;
-          height: 40px;
-          border: 1px solid rgba(109,78,25,0.25);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(198,158,143,0.1);
-          flex-shrink: 0;
-          font-size: 16px;
         }
       `}</style>
 
@@ -94,128 +115,89 @@ const ContactPage = () => {
 
       <div style={{ background: "#f5f6f5", minHeight: "100vh" }}>
 
-        {/* Page header */}
-     
+        <div style={{
+          maxWidth: 1100,
+          margin: "0 auto",
+          padding: "64px 24px",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 40
+        }}>
 
-        {/* Main content */}
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "64px 24px 96px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 48, alignItems: "start" }}>
-
-          {/* Left — contact info */}
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-          >
-            <p className="ct-sans" style={{ color: "#c69e8f", fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700, marginBottom: 14 }}>
-              ✦ Get in Touch ✦
+          {/* LEFT */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <h2 className="ct-display">HP Jewels</h2>
+            <p className="ct-serif">
+              Visit our atelier or write to us.
             </p>
-            <h2 className="ct-display" style={{ color: "#6d4e19", fontSize: "clamp(20px, 2.5vw, 30px)", fontWeight: 700, marginBottom: 12 }}>
-              HP Jewels
-            </h2>
-            <div className="ct-divider" style={{ width: 60, marginBottom: 28 }} />
-            <p className="ct-serif" style={{ color: "#3d3228", fontSize: 16, fontStyle: "italic", lineHeight: 1.85, marginBottom: 32 }}>
-              Visit our atelier or write to us — we respond to every inquiry with the care it deserves.
-            </p>
-
-            {[
-              { icon: "📍", label: "Our Atelier", value: "HP Jewels, Ring Road, Surat, Gujarat — 395002" },
-              { icon: "📞", label: "Phone", value: "+91 98765 43210" },
-              { icon: "✉️", label: "Email", value: "concierge@hpjewels.in" },
-              { icon: "🕐", label: "Hours", value: "Mon – Sat, 10am – 7pm IST" },
-            ].map((item, i) => (
-              <div key={i} className="ct-info-item">
-                <div className="ct-icon-wrap">{item.icon}</div>
-                <div>
-                  <p className="ct-display" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#6d4e19", marginBottom: 4 }}>
-                    {item.label}
-                  </p>
-                  <p className="ct-serif" style={{ fontSize: 16, fontWeight: 600, color: "#3d3228", lineHeight: 1.55 }}>
-                    {item.value}
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            {/* Social links */}
-            <div style={{ display: "flex", gap: 10, marginTop: 28 }}>
-              {["Instagram", "Facebook", "Pinterest"].map((s, i) => (
-                <span key={i} className="ct-display" style={{
-                  fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase",
-                  color: "#6d4e19", border: "1px solid rgba(109,78,25,0.3)", padding: "7px 14px",
-                  cursor: "pointer",
-                }}>
-                  {s}
-                </span>
-              ))}
-            </div>
           </motion.div>
 
-          {/* Right — form */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.25 }}
-            style={{ background: "white", border: "1px solid rgba(188,193,194,0.35)", padding: "40px 36px" }}
-          >
-            <p className="ct-sans" style={{ color: "#c69e8f", fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 700, marginBottom: 14 }}>
-              ✦ Send a Message ✦
-            </p>
-            <h3 className="ct-display" style={{ color: "#6d4e19", fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
-              Write to Us
-            </h3>
-            <div className="ct-divider" style={{ width: 50, marginBottom: 28 }} />
+          {/* RIGHT FORM */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <form onSubmit={handleSubmit}>
 
-            <form>
-              <div style={{ marginBottom: 22 }}>
-                <label className="ct-label" htmlFor="Name">Name</label>
+              <div>
+                <label className="ct-label">Name</label>
                 <input
-                  type="text"
+                  id="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   className="ct-input"
-                  id="Name"
-                  placeholder="Enter your name"
                 />
               </div>
 
-              <div style={{ marginBottom: 22 }}>
-                <label className="ct-label" htmlFor="Email">Email</label>
+              <div>
+                <label className="ct-label">Email</label>
                 <input
+                  id="email"
                   type="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   className="ct-input"
-                  id="Email"
-                  placeholder="name@example.com"
                 />
               </div>
 
-              <div style={{ marginBottom: 22 }}>
-                <label className="ct-label" htmlFor="Subject">Subject</label>
+              <div>
+                <label className="ct-label">Mobile</label>
                 <input
-                  type="text"
+                  id="mobile"
+                  value={formData.mobile}
+                  onChange={handleChange}
                   className="ct-input"
-                  id="Subject"
-                  placeholder="e.g. Bespoke ring enquiry"
                 />
               </div>
 
-              <div style={{ marginBottom: 28 }}>
-                <label className="ct-label" htmlFor="Message">Message</label>
+              <div>
+                <label className="ct-label">Product</label>
+                <input
+                  id="product_name"
+                  value={formData.product_name}
+                  onChange={handleChange}
+                  className="ct-input"
+                />
+              </div>
+
+              <div>
+                <label className="ct-label">Message</label>
                 <textarea
-                  rows={5}
+                  id="message"
+                  value={formData.message}
+                  onChange={handleChange}
                   className="ct-input"
-                  id="Message"
-                  placeholder="How can we assist you with your jewellery selection?"
-                  style={{ resize: "vertical" }}
                 />
               </div>
 
-              <div style={{ textAlign: "center" }}>
-                <button className="ct-btn" type="submit" disabled>
-                  ✦ Send Inquiry
-                </button>
-              </div>
+              <br />
+
+              <button type="submit" className="ct-btn" disabled={loading}>
+                {loading ? "Sending..." : "✦ Send Inquiry"}
+              </button>
+
             </form>
           </motion.div>
 
         </div>
+
       </div>
 
       <Footer />

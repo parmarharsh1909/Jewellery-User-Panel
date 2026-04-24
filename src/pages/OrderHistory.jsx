@@ -100,38 +100,89 @@ const OrderHistory = () => {
                 </div>
 
                 {/* Body */}
-                <div style={{ padding:"20px 24px", display:"grid", gridTemplateColumns:"80px 1fr auto", gap:20, alignItems:"center" }}>
-                  <div style={{ width:80, height:80, background:"#faf8f4", border:"1px solid rgba(188,193,194,.3)", overflow:"hidden" }}>
-                    <img src={order.product_image ? `http://localhost/Jewellerydb/${order.product_image}` : "https://via.placeholder.com/80"}
-                      alt="product" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
-                  </div>
+                {/* Body */}
+<div style={{ padding:"24px 28px" }}>
 
-                  <div>
-                    <p className="jp-d" style={{ fontSize:14, fontWeight:700, color:"#6d4e19", marginBottom:6 }}>{order.product_name || "Jewellery Product"}</p>
-                    <span className="jp-l" style={{ fontSize:9, fontWeight:700, letterSpacing:".15em", textTransform:"uppercase", background:"rgba(109,78,25,.08)", color:"#6d4e19", border:"1px solid rgba(109,78,25,.2)", padding:"3px 10px", display:"inline-block", marginBottom:6 }}>
-                      {order.order_status}
-                    </span>
-                    <p className="jp-s" style={{ fontSize:15, fontStyle:"italic", color:"#3d3228", fontWeight:700 }}>₹ {order.final_price}</p>
-                    {order.discount_amount > 0 && (
-                      <p className="jp-l" style={{ fontSize:11, fontWeight:700, color:"#c69e8f", marginTop:2 }}>Saved ₹ {order.discount_amount}</p>
-                    )}
-                    {order.promocode && (
-                      <span className="jp-l" style={{ fontSize:9, fontWeight:700, letterSpacing:".15em", textTransform:"uppercase", background:"rgba(198,158,143,.15)", color:"#8b5e3c", border:"1px solid rgba(198,158,143,.4)", padding:"3px 8px", display:"inline-block", marginTop:4 }}>{order.promocode}</span>
-                    )}
-                  </div>
+  {order.products.map((p, i) => (
+    <div key={i} style={{
+      display:"flex",
+      justifyContent:"space-between",
+      alignItems:"center",
+      borderBottom: i !== order.products.length - 1 ? "1px solid rgba(188,193,194,.3)" : "none",
+      padding:"14px 0"
+    }}>
 
-                  <div style={{ display:"flex", flexDirection:"column", gap:10, alignItems:"flex-end" }}>
-                    <button className="jp-cancel-btn" onClick={() => handleCancelOrder(order.order_id, order.product_id, order.user_id)}>
-                      Cancel
-                    </button>
-                    <button className="jp-invoice-btn" onClick={() => navigate(`/invoice/${order.order_id}`)}>
-                      View Invoice
-                    </button>
-                    <button className="jp-invoice-btn" onClick={() => navigate(`/${order.order_id}`)}>
-                      Review Product
-                    </button>
-                  </div>
-                </div>
+      {/* LEFT SIDE */}
+      <div>
+        <p className="jp-d" style={{
+          fontSize:16,
+          fontWeight:700,
+          color:"#6d4e19"
+        }}>
+          {p.product_name}
+        </p>
+
+        <p className="jp-l" style={{
+          fontSize:13,
+          color:"#74878b",
+          marginTop:4
+        }}>
+          Qty: {p.quantity}
+        </p>
+      </div>
+
+      {/* RIGHT SIDE */}
+      <div style={{ textAlign:"right" }}>
+        <p className="jp-d" style={{
+          fontSize:16,
+          fontWeight:700,
+          color:"#3d3228"
+        }}>
+          ₹ {p.item_final_price}
+        </p>
+
+        {p.item_discount > 0 && (
+          <p className="jp-l" style={{
+            fontSize:12,
+            color:"#c69e8f",
+            marginTop:2
+          }}>
+            Saved ₹ {p.item_discount}
+          </p>
+        )}
+      </div>
+
+    </div>
+  ))}
+
+  {/* 🔥 BUTTONS (same as before) */}
+  <div style={{
+    display:"flex",
+    flexDirection:"column",
+    gap:10,
+    alignItems:"flex-end",
+    marginTop:16
+  }}>
+    <button
+      className="jp-cancel-btn"
+      onClick={() =>
+        handleCancelOrder(order.order_id, order.products[0].product_id, order.user_id)
+      }
+    >
+      Cancel
+    </button>
+
+    <button
+      className="jp-invoice-btn"
+      onClick={() => navigate(`/invoice/${order.order_id}`)}
+    >
+      View Invoice
+    </button>
+
+    
+  </div>
+
+</div>
               </motion.div>
             ))
           )}

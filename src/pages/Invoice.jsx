@@ -136,14 +136,24 @@ const Invoice = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>{data.product_name}</td>
-                  <td>₹ {Number(data.price || 0).toFixed(2)}</td>
-                  <td>{data.quantity}</td>
-                  <td>{Number(data.discount_amount) > 0 ? `₹ ${data.discount_amount}` : "-"}</td>
-                  <td style={{ textAlign:"right" }}>₹ {Number(data.final_price || 0).toFixed(2)}</td>
-                </tr>
-              </tbody>
+  {data.products?.map((item, index) => (
+    <tr key={index}>
+      <td>{item.product_name}</td>
+      <td>₹ {Number(item.price || 0).toFixed(2)}</td>
+      <td>{item.quantity}</td>
+
+      <td>
+        {Number(item.item_discount) > 0
+          ? `₹ ${Number(item.item_discount).toFixed(2)}`
+          : "-"}
+      </td>
+
+      <td style={{ textAlign:"right" }}>
+        ₹ {Number(item.item_final_price || 0).toFixed(2)}
+      </td>
+    </tr>
+  ))}
+</tbody>
             </table>
 
             {/* Total */}

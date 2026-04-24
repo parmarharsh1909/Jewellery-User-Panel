@@ -432,7 +432,7 @@ const Products = () => {
                     <span className="pr-badge-purity">
                       {product.purity} Purity
                     </span>
-                    {product.offerdescription && (
+                    {product.offerdescription !== null && product.offerdescription !== "" && (
                       <span className="pr-badge-offer">
                         {product.offerdescription} Offer
                       </span>
