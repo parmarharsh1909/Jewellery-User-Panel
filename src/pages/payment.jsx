@@ -59,24 +59,65 @@ const Payment = () => {
     } catch (error) { alert("Payment Failed"); console.error(error); }
   };
 
-  const saveOrder = async (paymentStatus, paymentId = "") => {
-    const form = new FormData();
-    form.append("user_id", userId);
-    form.append("payment_method", method);
-    form.append("payment_status", paymentStatus);
-    form.append("payment_id", paymentId);
-    form.append("shipping_address", formData.address);
-    form.append("items", JSON.stringify(cartItems));
-    try {
-      await axios.post("http://localhost/Jewellerydb/orders.php", form);
-      const clearForm = new FormData();
-      clearForm.append("user_id", userId);
-      await axios.post("http://localhost/Jewellerydb/clearcart.php", clearForm);
-      clearCart();
-      alert("Order Placed Successfully");
-      navigate("/");
-    } catch (err) { console.error(err); }
-  };
+ // 🔥 CHANGE 1: saveOrder update
+const saveOrder = async (paymentStatus, paymentId = "") => {
+  const form = new FormData();
+  form.append("user_id", userId);
+  form.append("payment_method", method);
+  form.append("payment_status", paymentStatus);
+  form.append("payment_id", paymentId);
+  form.append("shipping_address", formData.address);
+  form.append("items", JSON.stringify(cartItems));
+
+  try {
+    // ✅ ORDER SAVE
+    const res = await axios.post(
+      "http://localhost/Jewellerydb/orders.php",
+      form
+    );
+
+    const order_id = res.data.order_id; // 🔥 MUST
+
+    // ✅ ONLINE PAYMENT → PURCHASE INSERT
+    if (paymentStatus === "Paid") {
+      const paymentForm = new FormData();
+      paymentForm.append("order_id", order_id);
+      paymentForm.append("payment_id", paymentId);
+
+      await axios.post(
+        "http://localhost/Jewellerydb/payments.php",
+        paymentForm
+      );
+    }
+
+    // ✅ MAIL (yaha shift kiya)
+    const orderData = new FormData();
+    orderData.append("email", localStorage.getItem("email"));
+    orderData.append("type", "order");
+
+    await axios.post(
+      "http://localhost/Jewellerydb/sendmail.php",
+      orderData
+    );
+
+    // ✅ CLEAR CART
+    const clearForm = new FormData();
+    clearForm.append("user_id", userId);
+
+    await axios.post(
+      "http://localhost/Jewellerydb/clearcart.php",
+      clearForm
+    );
+
+    clearCart();
+
+    alert("Order Placed Successfully");
+    navigate("/");
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const handlePayment = () => { method === "cod" ? saveOrder("Pending", "") : handleOnlinePayment(); };
 
